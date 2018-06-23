@@ -68,8 +68,9 @@ form input[type=text] {
     background-color: #eee;
 }
 
-.chat .username {
+#chats .username {
     font-weight: 800;
+    margin-bottom: 20px;
 }
 
 .chat:hover {

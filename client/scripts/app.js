@@ -8,15 +8,16 @@ class App {
   }
   
   init(username) {
-    $('#main').append(`<div class="username ${username}">${username}</div>`);
     this.handleUsernameClick(username);
     this.handleSubmit();
+    this.handleRenderMessagesClick();
+    // $('#main').append(`<div class="username ${username}">${username}</div>`);
   }
 
   send(message) {
+    var context = this;
     $.ajax({
-      // This is the url you should use to communicate with the parse API server.
-      url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
+      url: context.server,
       type: 'POST',
       data: JSON.stringify(message),
       contentType: 'application/json',
@@ -24,7 +25,6 @@ class App {
         console.log('chatterbox: Message sent');
       },
       error: function (data) {
-        // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
         console.error('chatterbox: Failed to send message', data);
       }
     });
@@ -33,16 +33,16 @@ class App {
   fetch() {
     var context = this;
     $.ajax({
-      // This is the url you should use to communicate with the parse API server.
-      url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
+      url: context.server,
       type: 'GET',
-      data: {order: '-createdAt', limit: 100},
+      data: {order: '-createdAt', limit: 10},
       contentType: 'application/json',
       success: function (data) {
         context.data = data;
+        context.getCleanedData(data);
+        // console.log(context.data, context.cleanedData);
       },
       error: function (data) {
-        // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
         console.error('chatterbox: Failed to recieve message', data);
       }
     });
@@ -53,10 +53,18 @@ class App {
   }
 
   renderMessage({username, text, roomname}) {
-    // $('#chats').append(`<div class="username ${username}"><em>${username}</em>  ${text}  [${roomname}]</div>`);
-    $('#chats').append(`<div class="username ${username}"> ${username} </div>  
-                        <div>${text}  [${roomname}]</div>`);
-    // this.handleUsernameClick(username); // TODO make message usernames selectable
+    $('#chats').append(`
+      <div class="username ${username}">
+        <span class="textUsername">@${username}: </span>
+        <span class="textMessage">${text}</span>
+        <span class="textRoomname">[${roomname}]</span>
+      </div>
+    `);
+  }
+
+  renderAllMessages() {
+    this.cleanedData.map((elem) => this.renderMessage(elem));
+    
   }
 
   renderRoom(room) {
@@ -69,10 +77,15 @@ class App {
     });
   }
 
+  handleRenderMessagesClick(username) {  
+    $('h1').click((e) => {
+      console.log('show me the messages', e.target);
+      this.renderAllMessages();
+    });
+  }
+
   handleSubmit() {
     $('#send').click('.submit', (e) => {
-      // console.log('submit working');
-      // sends a message upon clicking
       let text = $('#textInput').val();
       let username = $('#usernameInput').val();
       this.send({username: username, text: text, roomname: 'lobby'});
@@ -86,29 +99,13 @@ class App {
     return [...new Set(raw)];
   }
   
-  // scrubData(dataSource) {
-  //   return this.data.results.map((elem) => sanitizeData(elem[dataSource]));
-  // }
-  
-  // sanitizeData(textValue, dataSource) {
-  //   const regex = /(<\s*\/?\s*)script(\s*([^>]*)?\s*>)/gi;
-  //   return this[dataSource].results.map((elem) => {
-  //     if (elem[textValue] === '' || !elem[textValue]) {
-  //       return elem[textValue] = 'none supplied';
-  //       // console.log(elem[textValue]);
-  //     } else {
-  //       return elem[textValue].replace(regex, '$1div$2');  
-  //     }
-  //   });
-  // }
-  
   sanitizeDatum(dataSource) {
-    const regex = /(<\s*\/?\s*)script(\s*([^>]*)?\s*>)/gi;
+    const regex = /(script|img|\<\!|\$\(|style)/gi;
     return dataSource.replace(regex, '**failed attempt**');
   }
   
-  cleanAndValidateAllData() {
-    return this.data.results.map((elem) => {
+  cleanAndValidateAllData(dataSource) {
+    return dataSource.results.map((elem) => {
       var obj = {
         objectId: elem.objectId,
         username: '1',
@@ -127,15 +124,11 @@ class App {
     });
   }
   
-  getCleanedData() {
-    this.cleanedData = this.cleanAndValidateAllData();
-    // this.cleanedData.text = this.sanitizeData('text');
-    // this.cleanedData.roomname = this.sanitizeData('roomname');
+  getCleanedData(dataSource) {
+    // this.fetch();
+    this.cleanedData = this.cleanAndValidateAllData(dataSource);
   }
   
 } // closes App
 
 var app = new App;
-$(document).ready(() => {
-  // app.init();
-});
