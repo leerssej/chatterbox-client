@@ -3,6 +3,7 @@ class App {
   constructor() {
     this.server = 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages';
     this.username = window.location.search;
+    this.data = {};
   }
   
   init(username) {
@@ -29,6 +30,7 @@ class App {
   }
   
   fetch() {
+    var context = this;
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
@@ -36,7 +38,7 @@ class App {
       data: {order: '-createdAt', limit: 500},
       contentType: 'application/json',
       success: function (data) {
-        console.log(data);
+        context.data = data;
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -72,10 +74,27 @@ class App {
       // console.log('submit working');
       // sends a message upon clicking
       let text = $('#textInput').val();
-      this.send({username: 'im not that mean', text: text, roomname: 'lobby'});
+      let username = $('#usernameInput').val();
+      this.send({username: username, text: text, roomname: 'lobby'});
       $('#textInput').text('');
       console.log('msg still there');
     });
+  }
+ 
+  getUserNames() {
+    let raw = this.data.results.map((elem) => elem.username);
+    return [...new Set(raw)];
+  }
+  
+  getRoomNames() {
+    let raw = this.data.results.map((elem) => elem.roomname);
+    return [...new Set(raw)];
+
+  }
+  
+  getText() {
+    let raw = this.data.results.map((elem) => elem.text);
+    return [...new Set(raw)];
   }
 
 } // closes App
