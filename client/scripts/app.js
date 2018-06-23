@@ -8,9 +8,17 @@ class App {
   }
   
   init(username) {
+    var context = this;
+    this.fetch();
     this.handleUsernameClick(username);
     this.handleSubmit();
     this.handleRenderMessagesClick();
+    // setTimeInterval();
+    setInterval(function() {
+      // console.log(context);
+      context.fetch();
+      context.renderAllMessages();
+    }, 2000);
     // $('#main').append(`<div class="username ${username}">${username}</div>`);
   }
 
@@ -35,72 +43,25 @@ class App {
     $.ajax({
       url: context.server,
       type: 'GET',
-      data: {order: '-createdAt', limit: 10},
+      data: {order: '-createdAt', limit: 50},
       contentType: 'application/json',
       success: function (data) {
         context.data = data;
         context.getCleanedData(data);
-        // console.log(context.data, context.cleanedData);
       },
       error: function (data) {
         console.error('chatterbox: Failed to recieve message', data);
       }
     });
   }
-
-  clearMessages() {
-    $('#chats').empty();
-  }
-
-  renderMessage({username, text, roomname}) {
-    $('#chats').append(`
-      <div class="username ${username}">
-        <span class="textUsername">@${username}: </span>
-        <span class="textMessage">${text}</span>
-        <span class="textRoomname">[${roomname}]</span>
-      </div>
-    `);
-  }
-
-  renderAllMessages() {
-    this.cleanedData.map((elem) => this.renderMessage(elem));
-    
-  }
-
-  renderRoom(room) {
-    $('#roomSelect').append(`<div>${room}</div>`);
-  }
-  
-  handleUsernameClick(username) {  
-    $(`.username.${username}`).click((e) => {
-      console.log('msg: ', e.target);
-    });
-  }
-
-  handleRenderMessagesClick(username) {  
-    $('h1').click((e) => {
-      console.log('show me the messages', e.target);
-      this.renderAllMessages();
-    });
-  }
-
-  handleSubmit() {
-    $('#send').click('.submit', (e) => {
-      let text = $('#textInput').val();
-      let username = $('#usernameInput').val();
-      this.send({username: username, text: text, roomname: 'lobby'});
-      $('#textInput').text('');
-      $('#usernameInput').text('');
-    });
-  }
  
-  getUnique(textValue) {
-    let raw = this.data.results.map((elem) => elem[textValue]);
-    return [...new Set(raw)];
+  getCleanedData(dataSource) {
+    this.cleanedData = this.cleanAndValidateAllData(dataSource);
   }
-  
+
+  // data manipulation
   sanitizeDatum(dataSource) {
-    const regex = /(script|img|\<\!|\$\(|style)/gi;
+    const regex = /(script|img|\<\!|\$\(|style|iframe)/gi;
     return dataSource.replace(regex, '**failed attempt**');
   }
   
@@ -124,11 +85,64 @@ class App {
     });
   }
   
-  getCleanedData(dataSource) {
-    // this.fetch();
-    this.cleanedData = this.cleanAndValidateAllData(dataSource);
+  getUnique(textValue) {
+    let raw = this.data.results.map((elem) => elem[textValue]);
+    return [...new Set(raw)];
   }
+
+  // frontend activities
+  clearMessages() {
+    $('#chats').empty();
+  }
+
+  renderMessage({username, text, roomname}) {
+    $('#chats').append(`
+      <div class="username ${username}">
+        <span class="textUsername">@${username}: </span>
+        <span class="textMessage">${text}</span>
+        <span class="textRoomname">[${roomname}]</span>
+      </div>
+    `);
+  }
+
+  renderAllMessages() {
+    this.clearMessages();
+    this.cleanedData.map((elem) => this.renderMessage(elem));
+    
+  }
+
+  renderRoom(room) {
+    $('#roomSelect').append(`<div>${room}</div>`);
+  }
+  
+  // click handlers
+  handleUsernameClick(username) {  
+    $(`.username.${username}`).click((e) => {
+      console.log('msg: ', e.target);
+    });
+  }
+
+  handleRenderMessagesClick(username) {  
+    $('h1').click((e) => {
+      console.log('show me the messages', e.target);
+      this.renderAllMessages();
+    });
+  }
+
+  handleSubmit() {
+    $('#send').click('.submit', (e) => {
+      let text = $('#textInput').val();
+      let username = $('#usernameInput').val();
+      this.send({username: username, text: text, roomname: 'lobby'});
+      $('#textInput').text('');
+      $('#usernameInput').text('');
+    });
+  }
+ 
   
 } // closes App
 
 var app = new App;
+$(document).ready(function() {
+  // app.init();
+});

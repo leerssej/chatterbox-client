@@ -25,17 +25,22 @@ if (!/(&|\?)username=/.test(window.location.search)) {
   </head>
   <body>
     <div id="roomSelect"></div>
-
     <div id="main">
       <h1>chatterbox</h1>
-      <!-- Your HTML goes here! -->
+    <div class="sidenav">
+      <a href="#">About</a>
+      <a href="#">Services</a>
+      <a href="#">Clients</a>
+      <a href="#">Contact</a>
     </div>
-
-    <div id="chats"></div>
     <input id="usernameInput" type="text" class="submit" placeholder="Username">
     <input id="textInput" type="text" class="submit" placeholder="What do you want to send?">
     <br>
     <input type="submit" id="send" class="submit">
+      <!-- Your HTML goes here! -->
+    </div>
+
+    <div id="chats"></div>
 
   </body>
 </html>
