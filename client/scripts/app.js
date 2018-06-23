@@ -2,6 +2,7 @@
 class App {
   constructor() {
     this.server = 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages';
+    this.username = window.location.search;
   }
   
   init(username) {
@@ -13,7 +14,7 @@ class App {
   send(message) {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
-      // url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
+      url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
       type: 'POST',
       data: JSON.stringify(message),
       contentType: 'application/json',
@@ -32,14 +33,14 @@ class App {
       // This is the url you should use to communicate with the parse API server.
       url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
       type: 'GET',
-      data: JSON.stringify(message),
+      data: {order: '-createdAt', limit: 500},
       contentType: 'application/json',
       success: function (data) {
-        console.log('chatterbox: Message sent');
+        console.log(data);
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-        console.error('chatterbox: Failed to send message', data);
+        console.error('chatterbox: Failed to recieve message', data);
       }
     });
   }
@@ -70,10 +71,16 @@ class App {
     $('#send').click('.submit', (e) => {
       // console.log('submit working');
       // sends a message upon clicking
-      let message = 1;
+      let text = $('#textInput').val();
+      this.send({username: 'im not that mean', text: text, roomname: 'lobby'});
+      $('#textInput').text('');
+      console.log('msg still there');
     });
   }
 
 } // closes App
 
 var app = new App;
+$(document).ready(() => {
+  // app.init();
+});
