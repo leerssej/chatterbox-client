@@ -4,6 +4,7 @@ class App {
     this.server = 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages';
     this.username = window.location.search;
     this.data = {};
+    this.cleanedData = {}; 
   }
   
   init(username) {
@@ -35,7 +36,7 @@ class App {
       // This is the url you should use to communicate with the parse API server.
       url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
       type: 'GET',
-      data: {order: '-createdAt', limit: 500},
+      data: {order: '-createdAt', limit: 100},
       contentType: 'application/json',
       success: function (data) {
         context.data = data;
@@ -62,8 +63,7 @@ class App {
     $('#roomSelect').append(`<div>${room}</div>`);
   }
   
-  handleUsernameClick(username) {
-    
+  handleUsernameClick(username) {  
     $(`.username.${username}`).click((e) => {
       console.log('msg: ', e.target);
     });
@@ -77,26 +77,62 @@ class App {
       let username = $('#usernameInput').val();
       this.send({username: username, text: text, roomname: 'lobby'});
       $('#textInput').text('');
-      console.log('msg still there');
+      $('#usernameInput').text('');
     });
   }
  
-  getUserNames() {
-    let raw = this.data.results.map((elem) => elem.username);
+  getUnique(textValue) {
+    let raw = this.data.results.map((elem) => elem[textValue]);
     return [...new Set(raw)];
   }
   
-  getRoomNames() {
-    let raw = this.data.results.map((elem) => elem.roomname);
-    return [...new Set(raw)];
-
+  // scrubData(dataSource) {
+  //   return this.data.results.map((elem) => sanitizeData(elem[dataSource]));
+  // }
+  
+  // sanitizeData(textValue, dataSource) {
+  //   const regex = /(<\s*\/?\s*)script(\s*([^>]*)?\s*>)/gi;
+  //   return this[dataSource].results.map((elem) => {
+  //     if (elem[textValue] === '' || !elem[textValue]) {
+  //       return elem[textValue] = 'none supplied';
+  //       // console.log(elem[textValue]);
+  //     } else {
+  //       return elem[textValue].replace(regex, '$1div$2');  
+  //     }
+  //   });
+  // }
+  
+  sanitizeDatum(dataSource) {
+    const regex = /(<\s*\/?\s*)script(\s*([^>]*)?\s*>)/gi;
+    return dataSource.replace(regex, '**failed attempt**');
   }
   
-  getText() {
-    let raw = this.data.results.map((elem) => elem.text);
-    return [...new Set(raw)];
+  cleanAndValidateAllData() {
+    return this.data.results.map((elem) => {
+      var obj = {
+        objectId: elem.objectId,
+        username: '1',
+        text: 'hello',
+        roomname: 'lobby',
+        createdAt: elem.createdAt,
+        updatedAt: elem.updatedAt,
+      };
+      obj['username'] = elem['username'] || 'anon';
+      obj['text'] = elem['text'] || 'nothing to share';
+      obj['roomname'] = elem['roomname'] || 'unknown';
+      obj['username'] = this.sanitizeDatum(obj['username']);
+      obj['text'] = this.sanitizeDatum(obj['text']);
+      obj['roomname'] = this.sanitizeDatum(obj['roomname']);
+      return obj;
+    });
   }
-
+  
+  getCleanedData() {
+    this.cleanedData = this.cleanAndValidateAllData();
+    // this.cleanedData.text = this.sanitizeData('text');
+    // this.cleanedData.roomname = this.sanitizeData('roomname');
+  }
+  
 } // closes App
 
 var app = new App;
