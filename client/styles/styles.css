@@ -71,7 +71,7 @@ form input[type=text] {
 }
 
 #chats .username {
-    font-weight: 800;
+    /*font-weight: 800;*/
     margin-bottom: 20px;
 }
 
@@ -120,6 +120,10 @@ form input[type=text] {
 /* When you mouse over the navigation links, change their color */
 .sidenav a:hover {
     color: #f1f1f1;
+}
+
+.textUsername {
+    color: #818181;
 }
 
 /* Style page content */

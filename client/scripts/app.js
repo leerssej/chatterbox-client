@@ -10,16 +10,13 @@ class App {
   init(username) {
     var context = this;
     this.fetch();
-    this.handleUsernameClick(username);
+    // this.handleUsernameClick(username);
     this.handleSubmit();
     this.handleRenderMessagesClick();
-    // setTimeInterval();
     setInterval(function() {
-      // console.log(context);
       context.fetch();
       context.renderAllMessages();
     }, 2000);
-    // $('#main').append(`<div class="username ${username}">${username}</div>`);
   }
 
   send(message) {
@@ -61,7 +58,7 @@ class App {
 
   // data manipulation
   sanitizeDatum(dataSource) {
-    const regex = /(script|img|\<\!|\$\(|style|iframe)/gi;
+    const regex = /(\?|script|img|\<\!|\$\(|style|iframe|\<)/gi;
     return dataSource.replace(regex, '**failed attempt**');
   }
   
@@ -97,12 +94,14 @@ class App {
 
   renderMessage({username, text, roomname}) {
     $('#chats').append(`
-      <div class="username ${username}">
-        <span class="textUsername">@${username}: </span>
+      <div class="username">
+        <span class="textUsername ${username}">@${username}: <br></span>
+
         <span class="textMessage">${text}</span>
         <span class="textRoomname">[${roomname}]</span>
       </div>
     `);
+    this.handleUsernameClick(username);
   }
 
   renderAllMessages() {
@@ -116,10 +115,16 @@ class App {
   }
   
   // click handlers
-  handleUsernameClick(username) {  
-    $(`.username.${username}`).click((e) => {
-      console.log('msg: ', e.target);
+  handleUsernameClick(username) {
+    // if (!typeof e.handleObj.handler === 'function') {
+    $(`.${username}`).click((e) => {
+      $('.sidenav').append(e.target);
     });
+    // $('.sidenav').append('<br>');
+    // }
+  }
+  
+  checkUsernameClick(username) {  
   }
 
   handleRenderMessagesClick(username) {  
