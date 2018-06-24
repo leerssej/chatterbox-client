@@ -24,15 +24,23 @@ if (!/(&|\?)username=/.test(window.location.search)) {
     <script src="scripts/app.js"></script>
   </head>
   <body>
-    <div id="roomSelect"></div>
     <div id="main">
       <h1>chatterbox</h1>
-    <div class="sidenav">
-      <!-- <a href="#">About</a>
-      <a href="#">Services</a>
-      <a href="#">Clients</a>
-      <a href="#">Contact</a> -->
+    <div class="sidenav leftnav">
+      
+    <!-- <div class="dropdown">
+      <button onclick="myFunction()" class="dropbtn">Rooms</button>
+      <div id="myDropdown" class="dropdown-content">
+        <a href="#">Link 1</a>
+        <a href="#">Link 2</a>
+        <a href="#">Link 3</a>
+      </div>
+    </div> -->
     </div>
+    <div class="rightnav">
+    </div>
+    
+    
     <input id="usernameInput" type="text" class="submit" placeholder="Username">
     <input id="textInput" type="text" class="submit" placeholder="What do you want to send?">
     <br>
@@ -41,6 +49,7 @@ if (!/(&|\?)username=/.test(window.location.search)) {
     </div>
 
     <div id="chats"></div>
+      
 
   </body>
 </html>
